@@ -1,0 +1,333 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+        <meta http-equiv="content-type" content="text/html; charset= utf-8" />
+        <title>MCB2019/buoi10</title>
+        <link rel="shortcut icon" href="photos/akiki.jpg">
+        <link rel="stylesheet" href="css/bang.css">
+	<link rel="stylesheet" href="css/bieudo.css">
+	<link rel="stylesheet" href="css/control.css">
+	<script type="text/javascript" src="static/Chart.min.js"></script>
+	<script language="javascript" src="static/jquery-3.4.0.min.js"></script>
+        <script language="javascript">
+            function load_tem_text(text)
+	    {
+		if(text<=28){
+			document.getElementById("tem").style.background = '#FF9900';	}
+		else if(28<text && text<=32){
+			document.getElementById("tem").style.background = '#FF0033';	}
+		else{
+			document.getElementById("tem").style.background = '#CC0000';	}
+            }
+            function load_hum_text(text)
+	    {
+		if(text<=91){
+			document.getElementById("hum").style.background = '#FF0099';	}
+		else if(91<text && text<=93){
+			document.getElementById("hum").style.background = '#990099';	}
+		else{
+			document.getElementById("hum").style.background = '#000099';	}
+            
+            }
+            function load_ast(text)
+	    {
+		if(text<=60){
+			document.getElementById("as").style.background = '#DDC488';	}
+		else if(60<text && text<=70){
+			document.getElementById("as").style.background = '#ECAB53';	}
+		else if(70<text && text<=80){
+			document.getElementById("as").style.background = '#C0C0C0';	}
+		else if(80<text && text<=90){
+			document.getElementById("as").style.background = '#008080';	}
+		else{
+			document.getElementById("as").style.background = '#FFCC99';	}
+            }
+
+        </script>
+	<script language="javascript">
+		function load_ajax()
+		{
+			var LOAD = 30;	//load #0 
+			$.ajax({
+				url : "test6.php",
+				type : "post",
+				dataType:"text",
+				data : {
+				     Sensor1 : LOAD
+				},
+				success : function (result){
+				    //$('#result').html(result);
+					var data = JSON.parse(result);
+					
+					// load dulieu len table 1
+					$('#val_tem').html(data.temp[data.time.length - 1] );
+					load_tem_text(data.temp[data.time.length - 1]);
+					$('#val_hum').html(data.hum[data.time.length - 1] );
+					load_hum_text(data.hum[data.time.length - 1] );
+					$('#val_winspeed').html(data.winspeed[data.time.length - 1] );
+					load_ast (data.winspeed[data.time.length - 1] );
+					$('#val_wstatus').html(data.wstatus[data.time.length - 1] );
+
+				        /*- Create object tmp_data to save data -*/
+				        var tmp_data = {
+				        winspeed: [],
+				        time: []
+				        };
+
+				        /*- Use 15 value final of table -*/
+				        if(data.time.length>50) {
+				            for(var i=data.time.length-50; i<data.time.length; i++) 
+					    {   // Add value to tmp_data                            
+				        	tmp_data.winspeed.push(data.winspeed[i]);
+				        	tmp_data.time.push(data.time[i]);
+				            }
+				        }
+				        else {
+				            tmp_data = data;
+				        }
+					//var data = JSON.stringify(tmp_data.hum);
+
+					/* -	         console.log(tmp_data);
+					/*--------------------------------------------------------*/
+				        /*- Update Chart -*/
+					myChart.data.labels = tmp_data.time;
+					myChart.data.datasets[0].data = tmp_data.winspeed;
+					myChart.update()	
+					
+				    }
+			});    
+		}
+		setInterval(load_ajax,1000);
+	</script> 
+
+</head>
+<body>
+    <div id= "dau">
+	<table id= "tbtren">
+		<tr>
+			<td></td>
+            		<td id= "tem">
+				<img src="photos/tem.png" width=104 height="103" />
+				<br ><b id="val_tem">00</b><b>°C</b></br>
+			</td>
+			<td></td>
+            		<td id= "hum">
+				<img src="photos/hum.png" width=104 height="103"/>
+				<br><b id="val_hum">00</b><b>%</b></br>
+			</td>
+			<td></td>
+            		<td id= "as">
+				<img src="photos/as.png" width=104 height="103"/>
+				<br><b id="val_winspeed">00</b><b></b></br>
+			</td>
+			<td></td>
+		</tr>
+	</table>
+	<table id= "tbakiki">
+		<tr>
+			<td></td>
+            		<td id= "wstatus">
+				<br ><b id="val_wstatus" >STATUS</b><b></b></br>
+			</td>
+			<td></td>
+		</tr>
+	</table>
+	<table id= "tbduoi">
+            	<td id= "anh">
+		    <div id= "bang">
+			
+		    <div class="container">	
+		    <li><center><h2> 👉 BẢNG CẬP NHẬT THÔNG SỐ CỦA SENSOR 👈 </h2></center></li>           
+				<canvas id="chart" style="width: 100%; height: 65vh; background: #222; border: 1px solid #555652; margin-top: 10px;"></canvas>
+
+				<script>
+				var ctx = document.getElementById("chart").getContext('2d');
+	    			var myChart = new Chart(ctx, {
+				type: 'line',
+				data: {
+				    labels: [],
+				    datasets: 
+				    [{
+				        label: 'Winspeed ',
+					yAxisID: 'val_winspeed',
+				        data: [],
+				        backgroundColor: 'transparent',
+				        borderColor:'rgba(255,99,132)',
+				        borderWidth: 2
+				    }]
+				},
+ // *****************dinh dang bang*******************************************
+			       options: {
+				   
+			title: {
+			    display: true,                      // Show title
+			    text: "MCB2019",               // Text of title
+			    fontSize: 30,                       // Size of title
+			    fontColor: ['rgb(0, 255, 0)'],      // Color of title
+			    fontStyle: "bold"                   // Style of title
+			},
+			scales: {
+			    /**/
+			    xAxes : [{                          // Ox
+				gridLines : {                   // Grid
+				    display : true
+				},
+				ticks: {
+				    autoSkip: true,
+				    maxTicksLimit: 20           // Max label show on Chart = 20
+				},
+				scaleLabel: {                   // Label of Ox
+				    display: true,
+				    labelString: "Date_and_Time",
+				    fontSize: 35,
+				    fontColor: ['#F5F5F5']
+				}
+			    }],
+			    /**/
+			    yAxes: [{                           // Oy
+				id: "val_winspeed",
+				position: 'left',
+				type: 'linear',					
+				scaleLabel: {                   // Label of Oy
+				    display: true,
+				    labelString: "Winspeed",
+				    fontSize: 30,
+				    fontColor: 'rgba(255,99,132)',
+				},             
+				
+			                 
+			    }]
+			}
+					}
+			    });
+				</script>
+			</div>
+		    </div>
+			
+		</td>
+		<td></td>
+            	<td id= "control">
+			<div>
+			    <h2 style="color:#0000EE;" >Control status panel</h2>
+			</div>
+			<br>
+			</br>
+			 <!--**********dieu khien*********** --> 
+			<table>
+				<td>
+				  <p>»» LED1: <span id="led1">OFF</span></p>
+				</td>
+
+				<td>
+				  <label class="switch">
+				    <input type="checkbox" name="button" value="led1" 						onchange="state_change(this)">  
+				    <!--state_change để kiểm tra led,khi nhấn button sẽ gọi hàm state train --> 
+				    <span class="slider1 round"></span>
+				  </label>
+				</td>
+			 </table>
+			
+			  <table>
+			  	<th>
+				<form action="/action_page.php" oninput="l1.value=parseInt(cl1.value)">0
+				  	<input type="range" min="0" max="255" value="125" class="slider" id="cl1">
+				  	<span id="pwm1"></span>250 =
+					<output name="l1" id ='l1'></output>
+				</form>
+			   	</th>
+			  </table>
+			<table>
+				<td>
+				  <p>»» LED2: <span id="led2">OFF</span></p>
+				</td>
+				<td>
+				  <label class="switch">
+				    <input type="checkbox" name="button" value="led2" 						onchange="state_change(this)">
+				    <span class="slider1 round"></span>
+				  </label>
+				</td>
+			</table>
+			<table>
+				<th>
+				<form action="/action_page.php" oninput="l2.value=parseInt(cl2.value)">0
+					<input type="range" min="0" max="255" value="125" class="slider" id="cl2">
+					<span id="pwm2"></span>250 =
+					<output name="l2" id ='l2'></output>
+				</form>
+				</th>
+			</table>
+			<table>»» Load the light by.</table>
+			<table >
+			<th >
+			<form action="/action_page.php" oninput="x.value=parseInt(ast.value)"> 0
+				<input type="range" id="ast" class="slider" name="ast" value="50" onclick="load_ast()"> 100 =
+				<output name="x" id ='x'></output>
+			</form>
+			</th></table>
+		
+			 <!--***** ket thuc dieu khien*********--> 
+
+		</td>
+	   
+	</table>
+	 <!--***** javascrip dieu khien*********--> 
+	<script> 
+		// load phpMQTT/ publish.php
+		function Load_gate(ledstatus){
+			$.ajax({
+				url : "phpMQTT/publish.php",
+				type : "post",
+				data : {
+				     msg : ledstatus,
+				}
+				 });
+		}
+	</script>
+	<script>        //nhận giá trị
+	    var slider = document.getElementsByClassName("slider");
+	    var output0 = document.getElementById("pwm1");
+	    var output1 = document.getElementById("pwm2");
+	    
+
+	    
+	    slider[0].onchange = function () {               
+	      
+	      pwm_change(output0.id, this.value);     
+	    }
+
+	    slider[1].onchange = function () {
+	      
+	      pwm_change(output1.id, this.value);
+	    }
+
+	  </script>
+
+	  <script>
+	    function pwm_change(name, val) {
+		$pwm = name + " " + val;
+		Load_gate($pwm);           
+	    }
+	  </script>
+
+	  <script>//on off
+	    function state_change(element) {    //thay đổi trang thái
+	      if (element.checked) {        
+		document.getElementById(element.value).innerHTML = "ON";
+		document.getElementById(element.value).style.color = "green";
+		$sac= element.value + "ON";
+		Load_gate($sac);
+
+	      } else if (!element.checked) {
+		document.getElementById(element.value).innerHTML = "OFF";
+		document.getElementById(element.value).style.color = "red";
+		$sac= element.value + "OFF";
+		Load_gate($sac);
+	      }
+	    }
+	  </script>
+			<!--***** ket thuc javascrip dieu khien*********--> 
+
+	
+    </div>     
+</body>
+</html>
